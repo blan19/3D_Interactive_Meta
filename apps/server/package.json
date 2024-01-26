@@ -29,6 +29,8 @@
     "rxjs": "^7.2.0"
   },
   "devDependencies": {
+    "@3im/config": "workspace:*",
+    "@3im/tsconfig": "workspace:*",
     "@nestjs/cli": "^8.0.0",
     "@nestjs/schematics": "^8.0.0",
     "@nestjs/testing": "^8.0.0",

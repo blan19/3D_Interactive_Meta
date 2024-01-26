@@ -18,6 +18,8 @@
     "three": "^0.160.1"
   },
   "devDependencies": {
+    "@3im/config": "workspace:*",
+    "@3im/tsconfig": "workspace:*",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
