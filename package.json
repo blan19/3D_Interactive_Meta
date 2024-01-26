@@ -1,15 +1,17 @@
 {
-  "name": "3d_interactive_meta",
+  "name": "3im",
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev:server": "turbo run dev --scope=\"@heartplace/server\"",
+    "dev:client": "turbo run dev --scope=\"@heartplace/client\"",
+    "dev": "turbo run dev --scope=\"@heartplace/client\"",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
+    "@3im/config": "workspace:*",
+    "@3im/tsconfig": "workspace:*",
     "prettier": "^3.1.1",
     "turbo": "latest"
   },
