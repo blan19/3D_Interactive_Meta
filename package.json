@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "dev:server": "turbo run dev --scope=\"@heartplace/server\"",
-    "dev:client": "turbo run dev --scope=\"@heartplace/client\"",
-    "dev": "turbo run dev --scope=\"@heartplace/client\"",
+    "dev:server": "turbo run dev --scope=\"@3im/server\"",
+    "dev:client": "turbo run dev --scope=\"@3im/client\"",
+    "dev": "turbo run dev --scope=\"@3im/client\"",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
