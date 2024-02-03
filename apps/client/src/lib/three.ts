@@ -1,3 +1,3 @@
 import * as THREE from 'three';
 
-export const Vectore3 = THREE.Vector3;
+export const Vector3 = THREE.Vector3;
