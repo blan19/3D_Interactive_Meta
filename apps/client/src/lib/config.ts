@@ -2,6 +2,7 @@ import { type AvatarCreatorConfig } from '@readyplayerme/react-avatar-creator';
 
 interface Config {
   avatar: AvatarCreatorConfig;
+  env: ImportMetaEnv;
 }
 
 export const config: Config = {
@@ -11,4 +12,5 @@ export const config: Config = {
     quickStart: false,
     language: 'kr',
   },
+  env: import.meta.env,
 };
