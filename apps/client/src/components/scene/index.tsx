@@ -1,15 +1,27 @@
+import { Suspense } from 'react';
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { useAvatarStore } from '../../store';
+import { Physics } from '@react-three/rapier';
+import Avatar from '../avatar';
 import City from '../city';
 
 const Scene = () => {
+  const { url } = useAvatarStore((state) => state);
   return (
-    <>
-      <ambientLight />
-      <directionalLight />
-      <City />
-      <OrbitControls />
-      <PerspectiveCamera />
-    </>
+    <Suspense>
+      <Physics debug>
+        <ambientLight />
+        <directionalLight />
+        <City />
+        <OrbitControls />
+        <PerspectiveCamera />
+        {url && (
+          <Suspense fallback={null}>
+            <Avatar url={url} />
+          </Suspense>
+        )}
+      </Physics>
+    </Suspense>
   );
 };
 
