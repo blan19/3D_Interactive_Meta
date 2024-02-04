@@ -1,11 +1,19 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
+import { IoAdapter } from "@nestjs/platform-socket.io";
 
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
-  const PORT = 5000;
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: "*",
+      credentials: true,
+    },
+  });
+  const PORT = 4000;
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   await app.listen(PORT);
 

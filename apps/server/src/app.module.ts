@@ -1,15 +1,7 @@
 import { Module } from "@nestjs/common";
-import { RouterModule } from "@nestjs/core";
-import { ChatModule } from "./chat/chat.module";
+import { EventsGateway } from "./events/events.gateway";
 
 @Module({
-  imports: [
-    RouterModule.register([
-      {
-        path: "chat",
-        module: ChatModule,
-      },
-    ]),
-  ],
+  imports: [EventsGateway],
 })
 export class AppModule {}
