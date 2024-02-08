@@ -8,7 +8,8 @@ import {
   KeyboardControls,
   type KeyboardControlsEntry,
 } from '@react-three/drei';
-import { KeyBoardManager } from './components/manager';
+import useSocket from './hooks/useSocket';
+import { socket } from './lib/socket';
 
 export enum Controls {
   forward = 'forward',
@@ -31,12 +32,13 @@ function App() {
     []
   );
 
+  useSocket(socket);
+
   return (
     <main className="h-full w-full">
       <OnBoarding />
       <KeyboardControls map={map}>
         <Canvas>
-          <KeyBoardManager />
           <Scene />
         </Canvas>
       </KeyboardControls>
