@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { AvatarCreator } from '@readyplayerme/react-avatar-creator';
 import { config } from '../../../lib/config';
 import { useAvatarStore } from '../../../store';
+import { socket } from '../../../lib/socket';
 
 const OnBoarding = () => {
   const { url, createAvatar } = useAvatarStore((state) => state);
   const [avatarMode, setAvatarMode] = useState(false);
+  const [nickname, setNickname] = useState('');
 
   return (
     <div
@@ -18,10 +20,22 @@ const OnBoarding = () => {
           className="rounded px-3 py-2"
           type="text"
           placeholder="닉네임을 입력해주세요."
+          value={nickname}
+          onChange={(event) => setNickname(event.target.value)}
         />
-        <button onClick={() => setAvatarMode(true)} type="button">
+        <button
+          onClick={() => {
+            if (!nickname.length) {
+              alert('닉네임을 입력해주세요');
+              return;
+            }
+            setAvatarMode(true);
+          }}
+          type="button"
+          className="rounded bg-white px-3 py-1"
+        >
           <a>
-            <span className="text-lg text-white">다음</span>
+            <span className="text-lg font-bold text-black">다음</span>
           </a>
         </button>
         {avatarMode && (
@@ -32,6 +46,7 @@ const OnBoarding = () => {
             onAvatarExported={(event) => {
               const avatarUrl = event.data.url + '?meshlod=1&quality=medium';
               createAvatar(avatarUrl);
+              socket.emit('worldJoin', nickname, avatarUrl);
               setAvatarMode(false);
             }}
           />
