@@ -24,12 +24,49 @@ server.register(fastifySocketIO, {
   },
 });
 
+// world
+const world = [];
+
 // socket manage
 server.ready((error) => {
   if (error) throw error;
 
   server.io.on('connection', (socket) => {
+    let character = null;
+
     console.info('socket connected : ', socket.id);
+
+    const onWorldUpdate = () => {
+      socket.emit('world', world);
+    };
+
+    socket.on('worldJoin', (nickname, avatar) => {
+      character = {
+        nickname,
+        avatar,
+        id: socket.id,
+        position: { x: 0, y: 0, z: 0 },
+      };
+      world.push(character);
+
+      socket.emit('worldJoined', {
+        character,
+      });
+      onWorldUpdate();
+    });
+
+    socket.on('disconnect', () => {
+      console.info('socket disconnected : ', socket.id);
+
+      if (world.length) {
+        world.splice(
+          world.findIndex((target) => target.id === socket.id),
+          1
+        );
+        onWorldUpdate();
+        character = null;
+      }
+    });
   });
 });
 
