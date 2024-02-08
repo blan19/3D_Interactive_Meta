@@ -11,8 +11,8 @@ interface UserState {
 }
 
 interface CharactersState {
-  characters: any[];
-  updateCharacters: (characters: any) => void;
+  world: any[];
+  updateWorld: (characters: any) => void;
 }
 
 const useAvatarStore = create<AvatarState>((set) => ({
@@ -25,10 +25,9 @@ const useUserStore = create<UserState>((set) => ({
   updateId: (newId: string) => set(() => ({ id: newId })),
 }));
 
-const useCharactersStore = create<CharactersState>((set) => ({
-  characters: [],
-  updateCharacters: (newCharacters: any) =>
-    set((state) => ({ characters: [...state.characters, newCharacters] })),
+const useWorldStore = create<CharactersState>((set) => ({
+  world: [],
+  updateWorld: (newWorld: any) => set(() => ({ world: newWorld })),
 }));
 
-export { useAvatarStore, useUserStore, useCharactersStore };
+export { useAvatarStore, useUserStore, useWorldStore };
