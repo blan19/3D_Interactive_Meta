@@ -37,7 +37,7 @@ server.ready((error) => {
     console.info('socket connected : ', socket.id);
 
     const onWorldUpdate = () => {
-      socket.emit('world', world);
+      server.io.emit('world', world);
     };
 
     socket.on('worldJoin', (nickname, avatar) => {
@@ -53,6 +53,13 @@ server.ready((error) => {
         character,
       });
       onWorldUpdate();
+    });
+
+    socket.on('pressed', (pressed) => {
+      server.io.emit('playerMove', {
+        id: socket.id,
+        pressed,
+      });
     });
 
     socket.on('disconnect', () => {

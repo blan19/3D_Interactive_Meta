@@ -4,21 +4,59 @@ Command: npx gltfjsx@6.2.3 public/models/city city.glb -o src/components/city/in
 */
 
 import { useGLTF } from '@react-three/drei';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { SkeletonUtils } from 'three-stdlib';
 import { Vector3 } from '../../lib/three';
-import { RigidBody } from '@react-three/rapier';
+import { RapierRigidBody, RigidBody } from '@react-three/rapier';
+import { socket } from '../../lib/socket';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
 interface AvatarProps {
   url: string;
+  id: string;
+  position?: InstanceType<typeof Vector3>;
 }
 
-const Avatar = ({ url }: AvatarProps) => {
-  const avatar = useRef();
+interface PressedType {
+  back: boolean;
+  forward: boolean;
+  left: boolean;
+  right: boolean;
+  jump: boolean;
+}
+
+const PRESSED_INITIAL_STATE = {
+  back: false,
+  forward: false,
+  left: false,
+  right: false,
+  jump: false,
+};
+
+const SPEED = 4;
+// const direction = new Vector3();
+// const frontVector = new Vector3();
+// const sideVector = new Vector3();
+
+const Avatar = ({ url, id, ...props }: AvatarProps) => {
+  const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
+  const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
   const { scene } = useGLTF(url);
+  const [pressed, setPressed] = useState<PressedType>(PRESSED_INITIAL_STATE);
+
+  // memorized position
+  const position = useMemo(() => props.position, []);
 
   // Skinned meshes cannot be re-used in threejs without cloning them
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
+
+  const onPlayerMove = (value: any) => {
+    const { id, pressed: newPressed } = value;
+    if (value.id === id) {
+      setPressed(newPressed);
+    }
+  };
 
   useEffect(() => {
     clone.traverse((child) => {
@@ -28,10 +66,44 @@ const Avatar = ({ url }: AvatarProps) => {
       }
     });
   }, [clone]);
+
+  useEffect(() => {
+    socket.on('playerMove', onPlayerMove);
+
+    return () => {
+      socket.off('playerMove', onPlayerMove);
+    };
+  }, [id]);
+
+  useFrame((_state, delta) => {
+    const { forward, back, left, right } = pressed;
+
+    const direction = avatar.current?.position.clone();
+
+    if (direction) {
+      if (forward) direction.z += SPEED;
+      if (back) direction.z -= SPEED;
+      if (left) direction.x += SPEED;
+      if (right) direction.x -= SPEED;
+    }
+
+    direction?.normalize().multiplyScalar(SPEED * delta);
+
+    if (avatar.current && direction) {
+      avatar.current.position.sub(direction);
+      avatar.current.lookAt(direction);
+    }
+  });
+
   return (
-    <RigidBody type="dynamic">
-      <group position={new Vector3(0, 0, 0)}>
-        <primitive object={clone} ref={avatar} />
+    <RigidBody ref={ref} type="dynamic">
+      <group
+        ref={avatar}
+        position={position}
+        name={`player-${id}`}
+        dispose={null}
+      >
+        <primitive object={clone} />
       </group>
     </RigidBody>
   );

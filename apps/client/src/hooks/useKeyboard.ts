@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useKeyboardControls } from '@react-three/drei';
 import { Controls } from '../App';
 import { useUserStore } from '../store';
+import { socket } from '../lib/socket';
 
 export default function useKeyboard() {
   const { id } = useUserStore();
@@ -13,7 +14,7 @@ export default function useKeyboard() {
     return sub(
       (state) => state,
       (pressed) => {
-        console.log(pressed);
+        socket.emit('pressed', pressed);
       }
     );
   }, [id]);
