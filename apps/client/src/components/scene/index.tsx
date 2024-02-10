@@ -21,7 +21,7 @@ const Scene = () => {
         <PerspectiveCamera />
         {world.map((character) => (
           <Suspense key={character.id} fallback={null}>
-            <Avatar url={character.avatar} />
+            <Avatar id={character.id} url={character.avatar} />
           </Suspense>
         ))}
       </Physics>
