@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, PerspectiveCamera, Sky } from '@react-three/drei';
 import { useWorldStore } from '../../store';
 import { Physics } from '@react-three/rapier';
 import Avatar from '../avatar';
@@ -13,6 +13,7 @@ const Scene = () => {
 
   return (
     <Suspense>
+      <Sky />
       <Physics debug>
         <ambientLight />
         <directionalLight />
