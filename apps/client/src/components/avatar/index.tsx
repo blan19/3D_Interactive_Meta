@@ -16,6 +16,10 @@ interface AvatarProps {
   url: string;
   id: string;
   nickname: string;
+  speed?: number;
+  direction?: InstanceType<typeof Vector3>;
+  frontVector?: InstanceType<typeof Vector3>;
+  sideVector?: InstanceType<typeof Vector3>;
   position?: InstanceType<typeof Vector3>;
 }
 
@@ -35,12 +39,16 @@ const PRESSED_INITIAL_STATE = {
   jump: false,
 };
 
-const SPEED = 4;
-const direction = new Vector3();
-const frontVector = new Vector3();
-const sideVector = new Vector3();
-
-const Avatar = ({ url, id, nickname, ...props }: AvatarProps) => {
+const Avatar = ({
+  url,
+  id,
+  nickname,
+  speed = 3,
+  direction = new Vector3(),
+  frontVector = new Vector3(),
+  sideVector = new Vector3(),
+  ...props
+}: AvatarProps) => {
   const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
   const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
   const { scene } = useGLTF(url);
@@ -79,10 +87,9 @@ const Avatar = ({ url, id, nickname, ...props }: AvatarProps) => {
   }, [id]);
 
   useFrame((_state) => {
-    const velocity = ref.current?.linvel();
+    if (!(avatar.current && ref.current)) return;
 
-    if (!velocity) return;
-    if (!avatar.current) return;
+    const velocity = ref.current.linvel();
 
     // move
     frontVector.set(0, 0, Number(back) - Number(forward));
@@ -91,9 +98,9 @@ const Avatar = ({ url, id, nickname, ...props }: AvatarProps) => {
     direction
       .subVectors(frontVector, sideVector)
       .normalize()
-      .multiplyScalar(SPEED);
+      .multiplyScalar(speed);
 
-    ref.current?.setLinvel(
+    ref.current.setLinvel(
       { x: direction.x, y: velocity.y, z: direction.z },
       true
     );
@@ -112,6 +119,7 @@ const Avatar = ({ url, id, nickname, ...props }: AvatarProps) => {
   return (
     <RigidBody lockRotations ref={ref} type="dynamic">
       <Html
+        center
         style={{
           color: '#ffffff',
         }}
