@@ -26,6 +26,7 @@ const Scene = () => {
               id={character.id}
               url={character.avatar}
               nickname={character.nickname}
+              position={character.position}
             />
           </Suspense>
         ))}

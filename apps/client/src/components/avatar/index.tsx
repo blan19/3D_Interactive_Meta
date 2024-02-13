@@ -53,6 +53,7 @@ const Avatar = ({
 }: AvatarProps) => {
   const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
   const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
+  const group = useRef<InstanceType<typeof THREE.Group>>(null);
   const { scene } = useGLTF(url);
   const pressed = useRef<PressedType>(PRESSED_INITIAL_STATE);
 
@@ -70,7 +71,10 @@ const Avatar = ({
   );
 
   // memorized position
-  const position = useMemo(() => props.position, []);
+  const position = useMemo(
+    () => new Vector3(props.position?.x, props.position?.y, props.position?.z),
+    []
+  );
 
   // Skinned meshes cannot be re-used in threejs without cloning them
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
@@ -79,6 +83,7 @@ const Avatar = ({
     const { id: socketId, pressed: newPressed } = value;
     if (socketId === id) {
       pressed.current = newPressed;
+      socket.emit('updatePosition', socketId, ref.current?.translation());
     }
   };
 
@@ -159,7 +164,7 @@ const Avatar = ({
       >
         {nickname}
       </Html>
-      <group name={`player-${id}`} dispose={null}>
+      <group name={`player-${id}`} ref={group} dispose={null}>
         <primitive object={clone} ref={avatar} />
       </group>
     </RigidBody>
