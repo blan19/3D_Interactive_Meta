@@ -10,6 +10,7 @@ import {
 } from '@react-three/drei';
 import useSocket from './hooks/useSocket';
 import { socket } from './lib/socket';
+import { Chat } from './components/ui';
 
 export enum Controls {
   forward = 'forward',
@@ -35,8 +36,9 @@ function App() {
   useSocket(socket);
 
   return (
-    <main className="h-full w-full">
+    <main className="relative h-full w-full">
       <OnBoarding />
+      <Chat />
       <KeyboardControls map={map}>
         <Canvas>
           <Scene />

@@ -15,6 +15,11 @@ interface CharactersState {
   updateWorld: (characters: any) => void;
 }
 
+interface ChatFoucsState {
+  focus: boolean;
+  updateFocus: (focus: boolean) => void;
+}
+
 const useAvatarStore = create<AvatarState>((set) => ({
   url: null,
   createAvatar: (newUrl: string) => set(() => ({ url: newUrl })),
@@ -30,4 +35,9 @@ const useWorldStore = create<CharactersState>((set) => ({
   updateWorld: (newWorld: any) => set(() => ({ world: newWorld })),
 }));
 
-export { useAvatarStore, useUserStore, useWorldStore };
+const useChatFocusStore = create<ChatFoucsState>((set) => ({
+  focus: false,
+  updateFocus: (focus: boolean) => set(() => ({ focus })),
+}));
+
+export { useAvatarStore, useUserStore, useWorldStore, useChatFocusStore };

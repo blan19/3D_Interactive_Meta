@@ -11,6 +11,7 @@ import { RapierRigidBody, RigidBody } from '@react-three/rapier';
 import { socket } from '../../lib/socket';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { useChatFocusStore } from '../../store';
 
 interface AvatarProps {
   url: string;
@@ -51,11 +52,16 @@ const Avatar = ({
   sideVector = new Vector3(),
   ...props
 }: AvatarProps) => {
+  const { focus } = useChatFocusStore();
   const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
   const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
   const group = useRef<InstanceType<typeof THREE.Group>>(null);
   const { scene } = useGLTF(url);
   const pressed = useRef<PressedType>(PRESSED_INITIAL_STATE);
+
+  // chat
+  const [chat, setChat] = useState('');
+  const [showChatBubble, setShowChatBubble] = useState(false);
 
   // animation
   const { animations: walkAnimation } = useGLTF('/animations/M_Walk_001.glb');
@@ -87,6 +93,19 @@ const Avatar = ({
     }
   };
 
+  let chatMessageBubbleTimeout: number | undefined;
+  const onChatMessage = (value: { id: string; chat: string }) => {
+    const { id: socketId, chat: newChat } = value;
+    if (socketId === id) {
+      setChat(newChat);
+      clearTimeout(chatMessageBubbleTimeout);
+      setShowChatBubble(true);
+      chatMessageBubbleTimeout = setTimeout(() => {
+        setShowChatBubble(false);
+      }, 3500);
+    }
+  };
+
   useEffect(() => {
     clone.traverse((child) => {
       if (child.isObject3D) {
@@ -102,13 +121,15 @@ const Avatar = ({
     return () => {
       actions[animation]?.fadeOut(0.25);
     };
-  }, [animation, url]);
+  }, [animation, url, focus]);
 
   useEffect(() => {
     socket.on('playerMove', onPlayerMove);
+    socket.on('playerChat', onChatMessage);
 
     return () => {
       socket.off('playerMove', onPlayerMove);
+      socket.off('playerChat', onChatMessage);
     };
   }, [id]);
 
@@ -155,14 +176,25 @@ const Avatar = ({
 
   return (
     <RigidBody lockRotations ref={ref} position={position} type="dynamic">
+      <Html position-y={2.25}>
+        <div className="w-60 max-w-full">
+          <p
+            className={`absolute max-w-full -translate-x-1/2 -translate-y-full break-words rounded-lg bg-white bg-opacity-40 p-2 px-4 text-center text-black backdrop-blur-sm transition-opacity duration-500 ${
+              showChatBubble ? '' : 'opacity-0'
+            }`}
+          >
+            {chat}
+          </p>
+        </div>
+      </Html>
       <Html
         center
         style={{
-          color: '#ffffff',
+          color: '#000000',
         }}
-        position={new Vector3(0, 2, 0)}
+        position-y={2}
       >
-        {nickname}
+        <p className="font-bold">{nickname}</p>
       </Html>
       <group name={`player-${id}`} ref={group} dispose={null}>
         <primitive object={clone} ref={avatar} />
