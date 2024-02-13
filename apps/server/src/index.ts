@@ -66,6 +66,13 @@ server.ready((error) => {
       character.position = position;
     });
 
+    socket.on('chat', (chat) => {
+      server.io.emit('playerChat', {
+        id: socket.id,
+        chat,
+      });
+    });
+
     socket.on('disconnect', () => {
       console.info('socket disconnected : ', socket.id);
 
