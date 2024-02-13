@@ -62,6 +62,10 @@ server.ready((error) => {
       });
     });
 
+    socket.on('updatePosition', (id, position) => {
+      character.position = position;
+    });
+
     socket.on('disconnect', () => {
       console.info('socket disconnected : ', socket.id);
 
