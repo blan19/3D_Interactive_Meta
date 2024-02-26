@@ -4,14 +4,13 @@ Command: npx gltfjsx@6.2.3 public/models/city city.glb -o src/components/city/in
 */
 
 import { Html, useAnimations, useGLTF } from '@react-three/drei';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { SkeletonUtils } from 'three-stdlib';
 import { Vector3 } from '../../lib/three';
 import { RapierRigidBody, RigidBody } from '@react-three/rapier';
 import { socket } from '../../lib/socket';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useChatFocusStore } from '../../store';
 
 interface AvatarProps {
   url: string;
@@ -42,7 +41,48 @@ const PRESSED_INITIAL_STATE = {
 
 type ANIMATIONS_STATE = 'M_Standing_Idle_001' | 'M_Walk_001';
 
-const Avatar = ({
+const Chat = ({ id }: { id: string }) => {
+  // chat
+  const [chat, setChat] = useState('');
+  const [showChatBubble, setShowChatBubble] = useState(false);
+
+  let chatMessageBubbleTimeout: number | undefined;
+  const onChatMessage = (value: { id: string; chat: string }) => {
+    const { id: socketId, chat: newChat } = value;
+    if (socketId === id) {
+      setChat(newChat);
+      clearTimeout(chatMessageBubbleTimeout);
+      setShowChatBubble(true);
+      chatMessageBubbleTimeout = setTimeout(() => {
+        setShowChatBubble(false);
+      }, 3500);
+    }
+  };
+
+  useEffect(() => {
+    socket.on('playerChat', onChatMessage);
+
+    return () => {
+      socket.off('playerChat', onChatMessage);
+    };
+  }, [id]);
+
+  return (
+    <Html position-y={2.25}>
+      <div className="w-60 max-w-full">
+        <p
+          className={`absolute max-w-full -translate-x-1/2 -translate-y-full break-words rounded-lg bg-white bg-opacity-40 p-2 px-4 text-center text-black backdrop-blur-sm transition-opacity duration-500 ${
+            showChatBubble ? '' : 'opacity-0'
+          }`}
+        >
+          {chat}
+        </p>
+      </div>
+    </Html>
+  );
+};
+
+const Avatar = memo(function AvatarImpl({
   url,
   id,
   nickname,
@@ -51,17 +91,12 @@ const Avatar = ({
   frontVector = new Vector3(),
   sideVector = new Vector3(),
   ...props
-}: AvatarProps) => {
-  const { focus } = useChatFocusStore();
+}: AvatarProps) {
   const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
   const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
   const group = useRef<InstanceType<typeof THREE.Group>>(null);
-  const { scene } = useGLTF(url);
   const pressed = useRef<PressedType>(PRESSED_INITIAL_STATE);
-
-  // chat
-  const [chat, setChat] = useState('');
-  const [showChatBubble, setShowChatBubble] = useState(false);
+  const { scene } = useGLTF(url);
 
   // animation
   const { animations: walkAnimation } = useGLTF('/animations/M_Walk_001.glb');
@@ -93,19 +128,6 @@ const Avatar = ({
     }
   };
 
-  let chatMessageBubbleTimeout: number | undefined;
-  const onChatMessage = (value: { id: string; chat: string }) => {
-    const { id: socketId, chat: newChat } = value;
-    if (socketId === id) {
-      setChat(newChat);
-      clearTimeout(chatMessageBubbleTimeout);
-      setShowChatBubble(true);
-      chatMessageBubbleTimeout = setTimeout(() => {
-        setShowChatBubble(false);
-      }, 3500);
-    }
-  };
-
   useEffect(() => {
     clone.traverse((child) => {
       if (child.isObject3D) {
@@ -121,15 +143,13 @@ const Avatar = ({
     return () => {
       actions[animation]?.fadeOut(0.25);
     };
-  }, [animation, url, focus]);
+  }, [animation, url]);
 
   useEffect(() => {
     socket.on('playerMove', onPlayerMove);
-    socket.on('playerChat', onChatMessage);
 
     return () => {
       socket.off('playerMove', onPlayerMove);
-      socket.off('playerChat', onChatMessage);
     };
   }, [id]);
 
@@ -176,17 +196,7 @@ const Avatar = ({
 
   return (
     <RigidBody lockRotations ref={ref} position={position} type="dynamic">
-      <Html position-y={2.25}>
-        <div className="w-60 max-w-full">
-          <p
-            className={`absolute max-w-full -translate-x-1/2 -translate-y-full break-words rounded-lg bg-white bg-opacity-40 p-2 px-4 text-center text-black backdrop-blur-sm transition-opacity duration-500 ${
-              showChatBubble ? '' : 'opacity-0'
-            }`}
-          >
-            {chat}
-          </p>
-        </div>
-      </Html>
+      <Chat id={id} />
       <Html
         center
         style={{
@@ -201,7 +211,7 @@ const Avatar = ({
       </group>
     </RigidBody>
   );
-};
+});
 
 export default Avatar;
 
