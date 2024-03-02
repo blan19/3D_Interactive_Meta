@@ -18,7 +18,6 @@ const Scene = () => {
         <ambientLight />
         <directionalLight />
         <City />
-        <OrbitControls />
         <PerspectiveCamera />
         {world.map((character) => (
           <Suspense key={character.id} fallback={null}>
