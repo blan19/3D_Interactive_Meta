@@ -14,7 +14,7 @@ const Scene = () => {
   return (
     <Suspense>
       <Sky />
-      <Physics debug>
+      <Physics>
         <ambientLight />
         <directionalLight />
         <City />
