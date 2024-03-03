@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { OrbitControls, PerspectiveCamera, Sky } from '@react-three/drei';
+import { PerspectiveCamera, Sky } from '@react-three/drei';
 import { useWorldStore } from '../../store';
 import { Physics } from '@react-three/rapier';
 import Avatar from '../avatar';
