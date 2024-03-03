@@ -1,19 +1,32 @@
-## 3D Interactive Meta
+<p align="center">
+  <h3 align="center">3D Interactive Meta</h3>
 
-### 기능
+  <p align="center">
+    <span>
+      The project for real-time chat and move by multi-players
+    </span>
+  </p>
+</p>
 
-- 닉네임 선택
-  - (optional) 캐릭터 선택
-- 멀티유저 동기화
-- 실시간 채팅
+### Built with
 
-### 클라이언트
+- React
+- Three.js
+- R3F
+- Tailwind
+- Zustand
+- ReadyPlayerMe
 
-- 닉네임 선택
-- 캐릭터 선택
-- 채팅
-- 키보드로 오브젝트 조작
+### Feature
 
-### 서버
+- real-time chat
 
-- 웹소켓 데이터 송수신
+<p align="center">
+  <img src="https://github.com/blan19/3D_Interactive_Meta/assets/66871265/44bcfcd2-3568-407e-8793-8d38249e0061">
+</p>
+
+- player move sync
+
+<p align="center">
+  <img src="https://github.com/blan19/3D_Interactive_Meta/assets/66871265/2efee7dd-e875-4834-a2ac-00add80a0f00">
+</p>
