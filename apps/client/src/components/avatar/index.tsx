@@ -198,14 +198,11 @@ const Avatar = memo(function AvatarImpl({
         direction.clone().normalize()
       );
 
-      avatar.current.quaternion.copy(quaternion);
+      avatar.current.quaternion.slerp(quaternion, 0.1);
     }
 
-    if (isMove) {
-      setAnimation('M_Walk_001');
-    } else {
-      setAnimation('M_Standing_Idle_001');
-    }
+    if (isMove) setAnimation('M_Walk_001');
+    else setAnimation('M_Standing_Idle_001');
   });
 
   return (
