@@ -1,2 +1,2 @@
 export { default as Onboarding } from './onboarding';
-export { default as Chat } from './chat';
+export { default as ChatForm } from './chatForm';

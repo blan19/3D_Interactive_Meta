@@ -1,16 +1,16 @@
 import { useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
-import Scene from './components/scene';
-import OnBoarding from './components/ui/onboarding';
-import useLoaded from './hooks/useLoaded';
-import Loading from './components/loading';
 import {
   KeyboardControls,
   type KeyboardControlsEntry,
 } from '@react-three/drei';
+import Scene from './components/scene';
+import OnBoarding from './components/ui/onboarding';
+import useLoaded from './hooks/useLoaded';
+import Loading from './components/loading';
+import { ChatForm } from './components/ui';
 import useSocket from './hooks/useSocket';
 import { socket } from './lib/socket';
-import { Chat } from './components/ui';
 
 export enum Controls {
   forward = 'forward',
@@ -38,7 +38,7 @@ function App() {
   return (
     <main className="relative h-full w-full">
       <OnBoarding />
-      <Chat />
+      <ChatForm />
       <KeyboardControls map={map}>
         <Canvas>
           <Scene />

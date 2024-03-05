@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useChatFocusStore, useUserStore } from '../../../store';
 import { socket } from '../../../lib/socket';
 
-const Chat = () => {
+const ChatForm = () => {
   const { id } = useUserStore((state) => state);
   const [chat, setChat] = useState('');
   const { updateFocus } = useChatFocusStore((state) => state);
@@ -50,4 +50,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default ChatForm;
