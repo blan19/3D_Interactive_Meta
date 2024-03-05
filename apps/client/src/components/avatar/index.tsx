@@ -14,13 +14,14 @@ import { SkeletonUtils } from 'three-stdlib';
 import { RapierRigidBody, RigidBody, vec3, quat } from '@react-three/rapier';
 import { useFrame } from '@react-three/fiber';
 import { Vector3, Group } from '../../lib/three';
-import { socket } from '../../lib/socket';
 import { useUserStore } from '../../store';
+import { Socket } from 'socket.io-client';
 
 interface AvatarProps {
   url: string;
   id: string;
   nickname: string;
+  socket: Socket;
   speed?: number;
   direction?: InstanceType<typeof Vector3>;
   frontVector?: InstanceType<typeof Vector3>;
@@ -46,7 +47,7 @@ const PRESSED_INITIAL_STATE = {
 
 type ANIMATIONS_STATE = 'M_Standing_Idle_001' | 'M_Walk_001';
 
-const Chat = ({ id }: { id: string }) => {
+const Chat = ({ id, socket }: { id: string; socket: Socket }) => {
   // chat
   const [chat, setChat] = useState('');
   const [showChatBubble, setShowChatBubble] = useState(false);
@@ -91,6 +92,7 @@ const Avatar = memo(function AvatarImpl({
   url,
   id,
   nickname,
+  socket,
   speed = 3,
   direction = new Vector3(),
   frontVector = new Vector3(),
@@ -206,7 +208,7 @@ const Avatar = memo(function AvatarImpl({
   return (
     <group>
       <RigidBody ref={rb} position={position} lockRotations>
-        <Chat id={id} />
+        <Chat id={id} socket={socket} />
         <Html position-y={2.35}>
           <h1 className="-translate-x-1/2 transform whitespace-nowrap text-center font-bold">
             {nickname}

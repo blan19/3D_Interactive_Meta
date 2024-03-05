@@ -9,8 +9,6 @@ import OnBoarding from './components/ui/onboarding';
 import useLoaded from './hooks/useLoaded';
 import Loading from './components/loading';
 import { ChatForm } from './components/ui';
-import useSocket from './hooks/useSocket';
-import { socket } from './lib/socket';
 
 export enum Controls {
   forward = 'forward',
@@ -32,8 +30,6 @@ function App() {
     ],
     []
   );
-
-  useSocket(socket);
 
   return (
     <main className="relative h-full w-full">

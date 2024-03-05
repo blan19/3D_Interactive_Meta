@@ -1,15 +1,31 @@
-import { Suspense } from 'react';
-import { PerspectiveCamera, Sky } from '@react-three/drei';
-import { useWorldStore } from '../../store';
+import { Suspense, useEffect } from 'react';
+import { PerspectiveCamera, Sky, useKeyboardControls } from '@react-three/drei';
+import { useChatFocusStore, useUserStore, useWorldStore } from '../../store';
 import { Physics } from '@react-three/rapier';
+import { socket as socketInstance } from '../../lib/socket';
 import Avatar from '../avatar';
 import City from '../city';
-import useKeyboard from '../../hooks/useKeyboard';
+import useSocket from '../../hooks/useSocket';
+import { Controls } from '../../App';
 
 const Scene = () => {
+  const socket = useSocket(socketInstance);
   const { world } = useWorldStore();
+  const { id } = useUserStore();
+  const { focus } = useChatFocusStore();
+  const [sub] = useKeyboardControls<Controls>();
 
-  useKeyboard();
+  useEffect(() => {
+    if (!id) return;
+
+    return sub(
+      (state) => state,
+      (pressed) => {
+        if (focus) return;
+        socket.emit('pressed', pressed);
+      }
+    );
+  }, [id, focus]);
 
   return (
     <Suspense>
@@ -26,6 +42,7 @@ const Scene = () => {
               url={character.avatar}
               nickname={character.nickname}
               position={character.position}
+              socket={socket}
             />
           </Suspense>
         ))}
