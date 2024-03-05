@@ -11,11 +11,10 @@ import {
 } from '@react-three/drei';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { SkeletonUtils } from 'three-stdlib';
-import { Vector3 } from '../../lib/three';
-import { RapierRigidBody, RigidBody, vec3 } from '@react-three/rapier';
-import { socket } from '../../lib/socket';
+import { RapierRigidBody, RigidBody, vec3, quat } from '@react-three/rapier';
 import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import { Vector3, Group } from '../../lib/three';
+import { socket } from '../../lib/socket';
 import { useUserStore } from '../../store';
 
 interface AvatarProps {
@@ -74,7 +73,7 @@ const Chat = ({ id }: { id: string }) => {
   }, [id]);
 
   return (
-    <Html position-y={2.4}>
+    <Html position-y={2.5}>
       <div className="w-60 max-w-full">
         <p
           className={`absolute max-w-full -translate-x-1/2 -translate-y-full break-words rounded-lg bg-white bg-opacity-40 p-2 px-4 text-center text-black backdrop-blur-sm transition-opacity duration-500 ${
@@ -98,10 +97,9 @@ const Avatar = memo(function AvatarImpl({
   sideVector = new Vector3(),
   ...props
 }: AvatarProps) {
-  const ref = useRef<InstanceType<typeof RapierRigidBody>>(null);
-  const avatar = useRef<InstanceType<typeof THREE.Group>>(null);
-  const group = useRef<InstanceType<typeof THREE.Group>>(null);
-  const lookAt = useRef<InstanceType<typeof Vector3>>(new Vector3(0, 0, 0));
+  const rb = useRef<InstanceType<typeof RapierRigidBody>>(null);
+  const avatar = useRef<InstanceType<typeof Group>>(null);
+  const lookAt = useRef<ReturnType<typeof vec3>>(vec3({ x: 0, y: 0, z: 0 }));
   const pressed = useRef<PressedType>(PRESSED_INITIAL_STATE);
   const { id: userId } = useUserStore();
   const { scene } = useGLTF(url);
@@ -128,11 +126,11 @@ const Avatar = memo(function AvatarImpl({
   // Skinned meshes cannot be re-used in threejs without cloning them
   const clone = useMemo(() => SkeletonUtils.clone(scene), [scene]);
 
-  const onPlayerMove = (value: any) => {
+  const onPlayerMove = (value: { id: string; pressed: PressedType }) => {
     const { id: socketId, pressed: newPressed } = value;
     if (socketId === id) {
       pressed.current = newPressed;
-      socket.emit('updatePosition', socketId, ref.current?.translation());
+      socket.emit('updatePosition', socketId, rb.current?.translation());
     }
   };
 
@@ -166,15 +164,15 @@ const Avatar = memo(function AvatarImpl({
     const hips = avatar.current?.getObjectByName('Hips');
     hips?.position.set(0, hips.position.y, 0);
 
-    if (!(avatar.current && ref.current)) return;
+    if (!(avatar.current && rb.current)) return;
 
     if (id === userId) {
-      const updatedLookAt = vec3(ref.current.translation());
+      const updatedLookAt = vec3(rb.current.translation());
       lookAt.current.lerp(updatedLookAt, 0.1);
       _state.camera.lookAt(lookAt.current);
     }
 
-    const velocity = ref.current.linvel();
+    const velocity = rb.current.linvel();
 
     const isMove = back || forward || left || right;
 
@@ -186,15 +184,15 @@ const Avatar = memo(function AvatarImpl({
       .normalize()
       .multiplyScalar(speed);
 
-    ref.current.setLinvel(
+    rb.current.setLinvel(
       { x: direction.x, y: velocity.y, z: direction.z },
       true
     );
 
     if (direction.lengthSq() > 0) {
-      const quaternion = new THREE.Quaternion();
+      const quaternion = quat();
       quaternion.setFromUnitVectors(
-        new THREE.Vector3(0, 0, 1),
+        vec3({ x: 0, y: 0, z: 1 }),
         direction.clone().normalize()
       );
 
@@ -207,14 +205,14 @@ const Avatar = memo(function AvatarImpl({
 
   return (
     <group>
-      <RigidBody ref={ref} position={position} lockRotations>
+      <RigidBody ref={rb} position={position} lockRotations>
         <Chat id={id} />
-        <Html position-y={2.15}>
+        <Html position-y={2.35}>
           <h1 className="-translate-x-1/2 transform whitespace-nowrap text-center font-bold">
             {nickname}
           </h1>
         </Html>
-        <group name={`player-${id}`} ref={group} dispose={null}>
+        <group name={`player-${id}`} dispose={null}>
           <primitive object={clone} ref={avatar} />
         </group>
         {userId === id && (

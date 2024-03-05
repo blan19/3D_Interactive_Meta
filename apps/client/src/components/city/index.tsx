@@ -1,6 +1,5 @@
-import * as THREE from 'three';
 import { useGLTF } from '@react-three/drei';
-import { RigidBody } from '@react-three/rapier';
+import { RigidBody, vec3 } from '@react-three/rapier';
 
 const City = () => {
   const { scene } = useGLTF('/models/city/city.glb');
@@ -9,7 +8,7 @@ const City = () => {
     <RigidBody type="fixed">
       <primitive
         object={scene}
-        position={new THREE.Vector3(0, -3)}
+        position={vec3({ x: 0, y: -3, z: 0 })}
         scale={0.02}
       />
     </RigidBody>
